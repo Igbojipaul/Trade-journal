@@ -20,6 +20,8 @@ export interface Trade {
   risk_amount: string | null;
   strategy: string;
   notes: string;
+  screenshot: string | null;
+  screenshot_url: string | null;
   entry_time: string;
   exit_time: string | null;
   duration_minutes: number | null;

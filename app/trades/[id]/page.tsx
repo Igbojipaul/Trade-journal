@@ -37,16 +37,49 @@ export default function TradeDetailPage() {
   const router = useRouter();
   const id = params.id;
 
+  const [uploading, setUploading] = useState(false);
+  
+  
   const [trade, setTrade] = useState<Trade | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-
+  
+  const [screenshot, setScreenshot] = useState<string | null>(
+    trade?.screenshot_url ?? null
+  );
+  
   useEffect(() => {
     api.get(`/trades/${id}/`)
       .then(res => setTrade(res.data))
       .catch(() => setError('Could not load trade.'))
       .finally(() => setLoading(false));
   }, [id]);
+
+  console.log('Loaded screenshot:', screenshot);
+
+  const handleScreenshotUpload = async (
+  e: React.ChangeEvent<HTMLInputElement>
+) => {
+  const file = e.target.files?.[0];
+  if (!file) return;
+
+  setUploading(true);
+  const formData = new FormData();
+  formData.append('screenshot', file);
+
+  try {
+    const res = await api.post(
+      `/trades/${id}/upload_screenshot/`,
+      formData,
+      { headers: { 'Content-Type': 'multipart/form-data' } }
+    );
+    setScreenshot(res.data.screenshot);
+  } catch (err) {
+    console.error('Upload failed', err);
+  } finally {
+    setUploading(false);
+  }
+};
 
   if (loading) return (
     <main className="min-h-screen bg-gray-950 text-white p-6 flex items-center
@@ -251,6 +284,55 @@ export default function TradeDetailPage() {
                 className="text-blue-400 hover:text-blue-300 text-sm transition-colors">
                 Add notes →
               </Link>
+            </div>
+          )}
+        </div>
+
+        {/* Screenshot */}
+        <div className="bg-gray-900 border border-gray-800 rounded-xl p-6 mt-6">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-sm font-semibold text-gray-300 uppercase
+                           tracking-wider">
+              Chart Screenshot
+            </h2>
+            <label className={`cursor-pointer text-xs font-medium px-4 py-2
+                               rounded-lg transition-colors
+                               ${uploading
+                                 ? 'bg-gray-700 text-gray-400'
+                                 : 'border border-gray-700 hover:border-gray-500'
+                                   + ' text-gray-300 hover:text-white'
+                               }`}>
+              {uploading ? 'Uploading...' : screenshot
+                ? 'Replace screenshot'
+                : 'Upload screenshot'}
+              <input
+                type="file"
+                accept="image/*"
+                className="hidden"
+                disabled={uploading}
+                onChange={handleScreenshotUpload}
+              />
+            </label>
+          </div>
+
+          {trade.screenshot ? (
+            <div className="rounded-lg overflow-hidden border
+                            border-gray-800">
+              <img
+                src={trade.screenshot}
+                alt="Trade chart screenshot"
+                className="w-full object-contain max-h-96"
+              />
+            </div>
+          ) : (
+            <div className="border-2 border-dashed border-gray-700
+                            rounded-lg p-10 text-center">
+              <p className="text-gray-500 text-sm">
+                No screenshot attached yet
+              </p>
+              <p className="text-gray-600 text-xs mt-1">
+                Upload your chart screenshot to remember the setup
+              </p>
             </div>
           )}
         </div>
