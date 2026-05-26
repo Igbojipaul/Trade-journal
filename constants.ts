@@ -238,3 +238,4 @@ export   const navLinks = [
       { href: '/import',  label: 'Import' },
     { href: "/trades/new", label: "+ Log Trade" },
   ];
+

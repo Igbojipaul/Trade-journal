@@ -1,241 +1,246 @@
-"use client";
+'use client';
 
-import { useEffect, useState } from "react";
-import api from "@/lib/api";
+import { useEffect, useState } from 'react';
+import Link from 'next/link';
+import api from '@/lib/api';
 import {
-  LineChart,
-  Line,
-  BarChart,
-  Bar,
-  PieChart,
-  Pie,
-  Cell,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-  Legend,
-} from "recharts";
-import { COLORS, PIE_COLORS } from "@/constants";
-import Header from "@/components/Header";
+  LineChart, Line, BarChart, Bar, PieChart, Pie, Cell,
+  XAxis, YAxis, CartesianGrid, Tooltip,
+  ResponsiveContainer, Legend
+} from 'recharts';
+
+const COLORS = ['#00ff88', '#ff3b3b', '#555'];
+
+const chartStyle = {
+  backgroundColor: '#0d0d0d',
+  border: '1px solid #1e1e1e',
+  fontSize: '10px',
+  fontFamily: 'Roboto Mono, monospace',
+  color: '#888',
+};
+
+const sectionTitle = {
+  color: '#333',
+  fontSize: '9px',
+  letterSpacing: '3px',
+  marginBottom: '20px',
+  paddingBottom: '10px',
+  borderBottom: '1px solid #1a1a1a',
+  display: 'block' as const,
+};
 
 export default function AnalyticsPage() {
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    api
-      .get("/trades/analytics/")
-      .then((res) => setData(res.data))
-      .catch((err) => console.error(err))
+    api.get('/trades/analytics/')
+      .then(res => setData(res.data))
+      .catch(err => console.error(err))
       .finally(() => setLoading(false));
   }, []);
 
-  if (loading) {
-    return (
-      <main
-        className="min-h-screen bg-gray-950 text-white p-6 flex items-center
-                        justify-center"
-      >
-        <p className="text-gray-400">Crunching your numbers...</p>
-      </main>
-    );
-  }
+  if (loading) return (
+    <main style={{
+      minHeight: '100vh', background: '#0a0a0a',
+      display: 'flex', alignItems: 'center',
+      justifyContent: 'center',
+    }}>
+      <span style={{
+        color: '#333', fontSize: '11px', letterSpacing: '3px',
+      }}>
+        PROCESSING DATA...
+      </span>
+    </main>
+  );
 
   if (!data) return null;
 
   return (
-    <main className="min-h-screen bg-gray-950 text-white p-6">
-      <div className="max-w-7xl mx-auto">
-        {/* Header */}
-        <Header
-          title={"Analytics"}
-          subtitle={"What your trades are actually telling you"}
-        />
+    <main style={{
+      minHeight: '100vh', background: '#0a0a0a', padding: '24px',
+    }}>
+      <div style={{ maxWidth: '1400px', margin: '0 auto' }}>
 
-        <div className="space-y-6">
-          {/* Cumulative P&L */}
-          <div className="bg-gray-900 border border-gray-800 rounded-xl p-6">
-            <h2
-              className="text-sm font-semibold text-gray-300 uppercase
-                           tracking-wider mb-6"
-            >
-              Cumulative P&L Over Time
-            </h2>
+        {/* Header */}
+        <div style={{
+          display: 'flex', justifyContent: 'space-between',
+          alignItems: 'flex-start', marginBottom: '24px',
+          paddingBottom: '24px', borderBottom: '1px solid #1e1e1e',
+        }}>
+          <div>
+            <div style={{
+              color: '#333', fontSize: '9px',
+              letterSpacing: '3px', marginBottom: '4px',
+            }}>
+              PERFORMANCE ANALYSIS
+            </div>
+            <h1 style={{
+              fontSize: '20px', fontWeight: 700,
+              color: '#e8e8e8', letterSpacing: '3px', margin: 0,
+            }}>
+              ANALYTICS
+            </h1>
+          </div>
+          <Link href="/" style={{
+            color: '#333', fontSize: '10px',
+            letterSpacing: '2px', textDecoration: 'none',
+          }}>
+            ← DASHBOARD
+          </Link>
+        </div>
+
+        <div style={{ display: 'grid', gap: '1px' }}>
+
+          {/* P&L Over Time */}
+          <div style={{
+            background: '#0a0a0a',
+            border: '1px solid #1e1e1e',
+            padding: '24px',
+          }}>
+            <span style={sectionTitle}>CUMULATIVE P&L</span>
             {data.pnl_over_time.length === 0 ? (
-              <p className="text-gray-500 text-sm">Not enough data yet.</p>
+              <div style={{
+                color: '#222', fontSize: '11px',
+                letterSpacing: '2px', padding: '40px 0', textAlign: 'center',
+              }}>
+                NO DATA // LOG MORE TRADES
+              </div>
             ) : (
-              <ResponsiveContainer width="100%" height={300}>
+              <ResponsiveContainer width="100%" height={280}>
                 <LineChart data={data.pnl_over_time}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#1f2937" />
-                  <XAxis
-                    dataKey="date"
-                    stroke="#6b7280"
-                    tick={{ fontSize: 12 }}
-                  />
-                  <YAxis
-                    stroke="#6b7280"
-                    tick={{ fontSize: 12 }}
-                    tickFormatter={(v) => `$${v}`}
-                  />
-                  <Tooltip
-                    contentStyle={{
-                      backgroundColor: "#111827",
-                      border: "1px solid #374151",
-                      borderRadius: "8px",
+                  <CartesianGrid strokeDasharray="2 4" stroke="#111" />
+                  <XAxis dataKey="date" stroke="#222"
+                    tick={{ fill: '#444', fontSize: 10,
+                      fontFamily: 'Roboto Mono' }} />
+                  <YAxis stroke="#222"
+                    tick={{ fill: '#444', fontSize: 10,
+                      fontFamily: 'Roboto Mono' }}
+                    tickFormatter={v => `$${v}`} />
+                  <Tooltip contentStyle={chartStyle}
+                    formatter={(v: any) => [`$${v}`, '']} />
+                  <Line type="monotone" dataKey="cumulative"
+                    stroke="#00ff88" strokeWidth={1.5}
+                    dot={false} name="CUMULATIVE" />
+                  <Line type="monotone" dataKey="daily"
+                    stroke="#00aaff" strokeWidth={1}
+                    dot={false} name="DAILY"
+                    strokeDasharray="4 4" />
+                  <Legend
+                    wrapperStyle={{
+                      fontSize: '10px',
+                      fontFamily: 'Roboto Mono',
+                      color: '#444',
+                      letterSpacing: '2px',
                     }}
-                    formatter={(value: any) => [`$${value}`, ""]}
                   />
-                  <Line
-                    type="monotone"
-                    dataKey="cumulative"
-                    stroke={COLORS.blue}
-                    strokeWidth={2}
-                    dot={false}
-                    name="Cumulative P&L"
-                  />
-                  <Line
-                    type="monotone"
-                    dataKey="daily"
-                    stroke={COLORS.purple}
-                    strokeWidth={2}
-                    dot={false}
-                    name="Daily P&L"
-                    strokeDasharray="4 4"
-                  />
-                  <Legend />
                 </LineChart>
               </ResponsiveContainer>
             )}
           </div>
 
           {/* Outcome + By Market */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* Outcome Pie */}
-            <div className="bg-gray-900 border border-gray-800 rounded-xl p-6">
-              <h2
-                className="text-sm font-semibold text-gray-300 uppercase
-                             tracking-wider mb-6"
-              >
-                Outcome Breakdown
-              </h2>
-              <ResponsiveContainer width="100%" height={250}>
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: '1fr 1fr',
+            gap: '1px',
+          }}>
+            {/* Outcome */}
+            <div style={{
+              background: '#0a0a0a',
+              border: '1px solid #1e1e1e',
+              padding: '24px',
+            }}>
+              <span style={sectionTitle}>OUTCOME BREAKDOWN</span>
+              <ResponsiveContainer width="100%" height={240}>
                 <PieChart>
-                  <Pie
-                    data={data.outcome_breakdown}
-                    dataKey="value"
-                    nameKey="name"
-                    cx="50%"
-                    cy="50%"
-                    outerRadius={80}
-                    label
-                  >
+                  <Pie data={data.outcome_breakdown}
+                    dataKey="value" nameKey="name"
+                    cx="50%" cy="50%" outerRadius={80}
+                    strokeWidth={0}>
                     {data.outcome_breakdown.map((_: any, i: number) => (
-                      <Cell key={i} fill={PIE_COLORS[i]} />
+                      <Cell key={i} fill={COLORS[i]} />
                     ))}
                   </Pie>
-                  <Tooltip
-                    contentStyle={{
-                      backgroundColor: "#111827",
-                      border: "1px solid #374151",
-                      borderRadius: "8px",
-                    }}
-                  />
-                  <Legend />
+                  <Tooltip contentStyle={chartStyle} />
+                  <Legend wrapperStyle={{
+                    fontSize: '10px',
+                    fontFamily: 'Roboto Mono',
+                    color: '#444',
+                    letterSpacing: '2px',
+                  }} />
                 </PieChart>
               </ResponsiveContainer>
             </div>
 
             {/* By Market */}
-            <div className="bg-gray-900 border border-gray-800 rounded-xl p-6">
-              <h2
-                className="text-sm font-semibold text-gray-300 uppercase
-                             tracking-wider mb-6"
-              >
-                P&L by Market
-              </h2>
-              <ResponsiveContainer width="100%" height={250}>
+            <div style={{
+              background: '#0a0a0a',
+              border: '1px solid #1e1e1e',
+              padding: '24px',
+            }}>
+              <span style={sectionTitle}>P&L BY MARKET</span>
+              <ResponsiveContainer width="100%" height={240}>
                 <BarChart data={data.by_market}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#1f2937" />
-                  <XAxis
-                    dataKey="market"
-                    stroke="#6b7280"
-                    tick={{ fontSize: 12 }}
-                  />
-                  <YAxis
-                    stroke="#6b7280"
-                    tick={{ fontSize: 12 }}
-                    tickFormatter={(v) => `$${v}`}
-                  />
-                  <Tooltip
-                    contentStyle={{
-                      backgroundColor: "#111827",
-                      border: "1px solid #374151",
-                      borderRadius: "8px",
-                    }}
-                    formatter={(value: any) => [`$${value}`, "P&L"]}
-                  />
-                  <Bar
-                    dataKey="total_pnl"
-                    fill={COLORS.blue}
-                    radius={[4, 4, 0, 0]}
-                    name="Total P&L"
-                  />
+                  <CartesianGrid strokeDasharray="2 4" stroke="#111" />
+                  <XAxis dataKey="market" stroke="#222"
+                    tick={{ fill: '#444', fontSize: 10,
+                      fontFamily: 'Roboto Mono' }} />
+                  <YAxis stroke="#222"
+                    tick={{ fill: '#444', fontSize: 10,
+                      fontFamily: 'Roboto Mono' }}
+                    tickFormatter={v => `$${v}`} />
+                  <Tooltip contentStyle={chartStyle}
+                    formatter={(v: any) => [`$${v}`, 'P&L']} />
+                  <Bar dataKey="total_pnl" name="P&L"
+                    strokeWidth={0}>
+                    {data.by_market.map((entry: any, i: number) => (
+                      <Cell key={i}
+                        fill={entry.total_pnl >= 0 ? '#00ff88' : '#ff3b3b'} />
+                    ))}
+                  </Bar>
                 </BarChart>
               </ResponsiveContainer>
             </div>
           </div>
 
           {/* By Strategy */}
-          <div className="bg-gray-900 border border-gray-800 rounded-xl p-6">
-            <h2
-              className="text-sm font-semibold text-gray-300 uppercase
-                           tracking-wider mb-6"
-            >
-              Performance by Strategy
-            </h2>
+          <div style={{
+            background: '#0a0a0a',
+            border: '1px solid #1e1e1e',
+            padding: '24px',
+          }}>
+            <span style={sectionTitle}>P&L BY STRATEGY</span>
             {data.by_strategy.length === 0 ? (
-              <p className="text-gray-500 text-sm">
-                Tag your trades with a strategy to see this chart.
-              </p>
+              <div style={{
+                color: '#222', fontSize: '11px',
+                letterSpacing: '2px', padding: '40px 0', textAlign: 'center',
+              }}>
+                NO STRATEGY TAGS FOUND
+              </div>
             ) : (
-              <ResponsiveContainer width="100%" height={300}>
+              <ResponsiveContainer width="100%" height={280}>
                 <BarChart data={data.by_strategy}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#1f2937" />
-                  <XAxis
-                    dataKey="strategy"
-                    stroke="#6b7280"
-                    tick={{ fontSize: 12 }}
-                  />
-                  <YAxis
-                    stroke="#6b7280"
-                    tick={{ fontSize: 12 }}
-                    tickFormatter={(v) => `$${v}`}
-                  />
-                  <Tooltip
-                    contentStyle={{
-                      backgroundColor: "#111827",
-                      border: "1px solid #374151",
-                      borderRadius: "8px",
-                    }}
-                  />
-                  <Bar
-                    dataKey="total_pnl"
-                    name="Total P&L"
-                    radius={[4, 4, 0, 0]}
-                  >
+                  <CartesianGrid strokeDasharray="2 4" stroke="#111" />
+                  <XAxis dataKey="strategy" stroke="#222"
+                    tick={{ fill: '#444', fontSize: 10,
+                      fontFamily: 'Roboto Mono' }} />
+                  <YAxis stroke="#222"
+                    tick={{ fill: '#444', fontSize: 10,
+                      fontFamily: 'Roboto Mono' }}
+                    tickFormatter={v => `$${v}`} />
+                  <Tooltip contentStyle={chartStyle} />
+                  <Bar dataKey="total_pnl" name="P&L" strokeWidth={0}>
                     {data.by_strategy.map((entry: any, i: number) => (
-                      <Cell
-                        key={i}
-                        fill={entry.total_pnl >= 0 ? COLORS.win : COLORS.loss}
-                      />
+                      <Cell key={i}
+                        fill={entry.total_pnl >= 0 ? '#00ff88' : '#ff3b3b'} />
                     ))}
                   </Bar>
                 </BarChart>
               </ResponsiveContainer>
             )}
           </div>
+
         </div>
       </div>
     </main>

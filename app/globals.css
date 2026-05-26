@@ -1,26 +1,55 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@300;400;500;600;700&display=swap');
 @import "tailwindcss";
 
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --terminal-green: #00ff88;
+  --terminal-red: #ff3b3b;
+  --terminal-blue: #00aaff;
+  --terminal-yellow: #ffcc00;
+  --terminal-purple: #aa88ff;
+  --bg-primary: #0a0a0a;
+  --bg-secondary: #111111;
+  --bg-tertiary: #161616;
+  --border: #1e1e1e;
+  --border-bright: #2a2a2a;
+  --text-primary: #e8e8e8;
+  --text-secondary: #666666;
+  --text-dim: #333333;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+* {
+  border-radius: 0 !important;  /* Sharp edges everywhere */
+  box-sizing: border-box;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html, body {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  font-family: 'Roboto Mono', monospace;
+  font-size: 13px;
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+/* Scrollbar */
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: var(--bg-primary); }
+::-webkit-scrollbar-thumb { background: var(--border-bright); }
+::-webkit-scrollbar-thumb:hover { background: #444; }
+
+/* Terminal cursor blink for inputs */
+input:focus, textarea:focus, select:focus {
+  outline: none;
+  border-color: var(--terminal-green) !important;
+  box-shadow: 0 0 0 1px var(--terminal-green);
+}
+
+/* Selection color */
+::selection {
+  background: var(--terminal-green);
+  color: #000;
+}
+
+/* Table hover */
+.terminal-table tr:hover td {
+  background: #111 !important;
 }

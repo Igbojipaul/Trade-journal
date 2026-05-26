@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, type KeyboardEvent } from 'react';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import api from '@/lib/api';
@@ -16,15 +16,15 @@ interface ImportResult {
 
 export default function ImportPage() {
   const router = useRouter();
-  const [file, setFile] = useState<File | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
-  const [result, setResult] = useState<ImportResult | null>(null);
+  const [file, setFile]         = useState<File | null>(null);
+  const [loading, setLoading]   = useState(false);
+  const [error, setError]       = useState('');
+  const [result, setResult]     = useState<ImportResult | null>(null);
   const [dragOver, setDragOver] = useState(false);
 
   const handleFile = (f: File) => {
     if (!f.name.endsWith('.csv')) {
-      setError('Please upload a CSV file.');
+      setError('ERR // ONLY CSV FILES ACCEPTED');
       return;
     }
     setFile(f);
@@ -36,128 +36,161 @@ export default function ImportPage() {
     setLoading(true);
     setError('');
     setResult(null);
-
     const formData = new FormData();
     formData.append('file', file);
-
     try {
       const res = await api.post('/trades/import_csv/', formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
       setResult(res.data);
     } catch (err: any) {
-      setError(err.response?.data?.error || 'Import failed.');
+      setError('ERR // ' + (
+        err.response?.data?.error || 'IMPORT FAILED'
+      ).toUpperCase());
     } finally {
       setLoading(false);
     }
   };
 
-  const openFileDialog = () => {
-    const input = document.getElementById('csv-input') as HTMLInputElement | null;
-    input?.click();
-  };
-
-  const handleDropZoneKeyDown = (e: KeyboardEvent) => {
-    if (e.key === 'Enter' || e.key === ' ') {
-      e.preventDefault();
-      openFileDialog();
-    }
-  };
-
-  const dropZoneStateClass = dragOver
-    ? 'border-blue-500 bg-blue-500/5'
-    : file
-      ? 'border-green-500 bg-green-500/5'
-      : 'border-gray-700 hover:border-gray-500';
-
   return (
-    <main className="min-h-screen bg-gray-950 text-white p-6">
-      <div className="max-w-2xl mx-auto">
+    <main style={{
+      minHeight: '100vh', background: '#0a0a0a', padding: '24px',
+    }}>
+      <div style={{ maxWidth: '800px', margin: '0 auto' }}>
 
         {/* Header */}
-        <div className="flex items-center gap-4 mb-8">
-          <Link href="/"
-            className="text-gray-400 hover:text-white transition-colors text-sm">
-            ← Dashboard
-          </Link>
+        <div style={{
+          display: 'flex', alignItems: 'flex-start',
+          justifyContent: 'space-between',
+          marginBottom: '24px', paddingBottom: '24px',
+          borderBottom: '1px solid #1e1e1e',
+        }}>
           <div>
-            <h1 className="text-2xl font-bold">Import Trades</h1>
-            <p className="text-gray-400 text-sm mt-0.5">
-              Import from any broker via CSV
-            </p>
+            <div style={{
+              color: '#333', fontSize: '9px',
+              letterSpacing: '3px', marginBottom: '4px',
+            }}>
+              DATA IMPORT
+            </div>
+            <h1 style={{
+              color: '#e8e8e8', fontSize: '18px',
+              fontWeight: 700, letterSpacing: '3px', margin: 0,
+            }}>
+              IMPORT TRADES
+            </h1>
           </div>
+          <Link href="/" style={{
+            color: '#333', fontSize: '10px', letterSpacing: '2px',
+            textDecoration: 'none', border: '1px solid #1e1e1e',
+            padding: '8px 14px',
+          }}>
+            ← BACK
+          </Link>
         </div>
 
         {/* Supported brokers */}
-        <div className="bg-blue-500/10 border border-blue-500/20
-                        rounded-xl p-5 mb-6">
-          <h2 className="text-blue-400 font-semibold text-sm mb-3">
-            Works with any broker
-          </h2>
-          <div className="flex flex-wrap gap-2">
-            {['MT4', 'MT5', 'Deriv', 'Binance', 'cTrader',
-              'TradingView', 'Interactive Brokers', 'Any CSV'].map(b => (
-              <span key={b}
-                className="bg-blue-500/10 text-blue-300 text-xs px-3 py-1
-                           rounded-full border border-blue-500/20">
+        <div style={{
+          background: '#0d0d0d', border: '1px solid #1e1e1e',
+          padding: '16px', marginBottom: '1px',
+        }}>
+          <div style={{
+            color: '#333', fontSize: '9px',
+            letterSpacing: '3px', marginBottom: '12px',
+          }}>
+            COMPATIBLE BROKERS
+          </div>
+          <div style={{ display: 'flex', flexWrap: 'wrap' as const, gap: '8px' }}>
+            {['MT4', 'MT5', 'DERIV', 'BINANCE',
+              'CTRADER', 'TRADINGVIEW', 'IBKR', 'ANY CSV'].map(b => (
+              <span key={b} style={{
+                border: '1px solid #1e1e1e', color: '#444',
+                fontSize: '9px', letterSpacing: '2px',
+                padding: '4px 10px',
+              }}>
                 {b}
               </span>
             ))}
           </div>
         </div>
 
-        {/* CSV format guide */}
-        <div className="bg-gray-900 border border-gray-800 rounded-xl p-5 mb-6">
-          <h2 className="text-sm font-semibold text-gray-300 uppercase
-                         tracking-wider mb-3">
-            Required CSV format
-          </h2>
-          <div className="overflow-x-auto">
-            <table className="w-full text-xs">
+        {/* CSV format */}
+        <div style={{
+          background: '#0d0d0d', border: '1px solid #1e1e1e',
+          marginBottom: '16px',
+        }}>
+          <div style={{
+            padding: '10px 16px', borderBottom: '1px solid #1e1e1e',
+            color: '#333', fontSize: '9px', letterSpacing: '3px',
+          }}>
+            REQUIRED FORMAT
+          </div>
+          <div style={{ padding: '16px', overflowX: 'auto' as const }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
               <thead>
-                <tr className="text-gray-400 border-b border-gray-700">
-                  <th className="text-left py-2 pr-4">Column</th>
-                  <th className="text-left py-2 pr-4">Required</th>
-                  <th className="text-left py-2">Example</th>
+                <tr>
+                  {['COLUMN', 'REQUIRED', 'EXAMPLE'].map(h => (
+                    <th key={h} style={{
+                      textAlign: 'left', padding: '6px 12px 6px 0',
+                      color: '#222', fontSize: '9px', letterSpacing: '2px',
+                      borderBottom: '1px solid #1a1a1a',
+                    }}>
+                      {h}
+                    </th>
+                  ))}
                 </tr>
               </thead>
-              <tbody className="text-gray-300">
+              <tbody>
                 {[
-                  ['symbol',      '✅ Yes', 'EUR/USD'],
-                  ['market',      '✅ Yes', 'forex / crypto / stocks / synthetic'],
-                  ['direction',   '✅ Yes', 'long / short'],
-                  ['entry_price', '✅ Yes', '1.08432'],
-                  ['entry_time',  '✅ Yes', '2024-01-15 09:30:00'],
-                  ['exit_price',  'Optional', '1.09100'],
-                  ['exit_time',   'Optional', '2024-01-15 11:45:00'],
-                  ['stop_loss',   'Optional', '1.07800'],
-                  ['take_profit', 'Optional', '1.09500'],
-                  ['lot_size',    'Optional', '0.10'],
-                  ['pnl',         'Optional', '120.50'],
-                  ['strategy',    'Optional', 'Breakout'],
-                  ['notes',       'Optional', 'Strong momentum...'],
+                  ['symbol',      '✓ YES', 'EUR/USD'],
+                  ['market',      '✓ YES', 'forex / crypto / stocks / synthetic'],
+                  ['direction',   '✓ YES', 'long / short'],
+                  ['entry_price', '✓ YES', '1.08432'],
+                  ['entry_time',  '✓ YES', '2024-01-15 09:30:00'],
+                  ['exit_price',  'OPT',   '1.09100'],
+                  ['exit_time',   'OPT',   '2024-01-15 11:45:00'],
+                  ['stop_loss',   'OPT',   '1.07800'],
+                  ['take_profit', 'OPT',   '1.09500'],
+                  ['pnl',         'OPT',   '120.50'],
+                  ['strategy',    'OPT',   'Breakout'],
+                  ['notes',       'OPT',   'London session breakout...'],
                 ].map(([col, req, ex]) => (
-                  <tr key={col}
-                    className="border-b border-gray-800/50 last:border-0">
-                    <td className="py-2 pr-4 font-mono text-blue-400">{col}</td>
-                    <td className="py-2 pr-4">{req}</td>
-                    <td className="py-2 text-gray-500">{ex}</td>
+                  <tr key={col}>
+                    <td style={{
+                      padding: '7px 12px 7px 0',
+                      color: '#00aaff', fontSize: '11px',
+                      fontFamily: 'Roboto Mono, monospace',
+                      borderBottom: '1px solid #111',
+                    }}>
+                      {col}
+                    </td>
+                    <td style={{
+                      padding: '7px 12px 7px 0',
+                      color: req === '✓ YES' ? '#00ff88' : '#333',
+                      fontSize: '10px', letterSpacing: '1px',
+                      borderBottom: '1px solid #111',
+                    }}>
+                      {req}
+                    </td>
+                    <td style={{
+                      padding: '7px 0',
+                      color: '#333', fontSize: '10px',
+                      borderBottom: '1px solid #111',
+                    }}>
+                      {ex}
+                    </td>
                   </tr>
                 ))}
               </tbody>
             </table>
-          </div>
 
-          {/* Download template */}
-          <button
-            onClick={() => {
-              const headers = 'symbol,market,direction,entry_price,entry_time,'
-                + 'exit_price,exit_time,stop_loss,take_profit,lot_size,'
-                + 'pnl,strategy,notes\n';
+            <button onClick={() => {
+              const headers = 'symbol,market,direction,entry_price,'
+                + 'entry_time,exit_price,exit_time,stop_loss,'
+                + 'take_profit,lot_size,pnl,strategy,notes\n';
               const example = 'EUR/USD,forex,long,1.08432,'
                 + '2024-01-15 09:30:00,1.09100,2024-01-15 11:45:00,'
                 + '1.07800,1.09500,0.10,120.50,Breakout,'
-                + 'Strong momentum on London open\n';
+                + 'London open breakout\n';
               const blob = new Blob([headers + example],
                 { type: 'text/csv' });
               const url = URL.createObjectURL(blob);
@@ -165,19 +198,20 @@ export default function ImportPage() {
               a.href = url;
               a.download = 'trade_journal_template.csv';
               a.click();
-            }}
-            className="mt-4 text-xs text-blue-400 hover:text-blue-300
-                       transition-colors flex items-center gap-1"
-          >
-            ↓ Download CSV template
-          </button>
+            }} style={{
+              marginTop: '16px',
+              background: 'none', border: '1px solid #1e1e1e',
+              color: '#333', fontSize: '9px', letterSpacing: '2px',
+              padding: '7px 14px', cursor: 'pointer',
+              fontFamily: 'Roboto Mono, monospace',
+            }}>
+              ↓ DOWNLOAD TEMPLATE
+            </button>
+          </div>
         </div>
 
         {/* Drop zone */}
         <div
-          role="button"
-          tabIndex={0}
-          onKeyDown={handleDropZoneKeyDown}
           onDragOver={e => { e.preventDefault(); setDragOver(true); }}
           onDragLeave={() => setDragOver(false)}
           onDrop={e => {
@@ -186,130 +220,175 @@ export default function ImportPage() {
             const f = e.dataTransfer.files[0];
             if (f) handleFile(f);
           }}
-          className={`border-2 border-dashed rounded-xl p-10 text-center
-                      transition-colors cursor-pointer mb-4
-            ${dropZoneStateClass}`}
-          onClick={openFileDialog}
+          onClick={() => document.getElementById('csv-input')?.click()}
+          style={{
+            border: `1px dashed ${dragOver
+              ? '#00ff88'
+              : file ? '#00ff8855' : '#1e1e1e'}`,
+            background: dragOver
+              ? 'rgba(0,255,136,0.03)'
+              : '#0a0a0a',
+            padding: '48px 24px',
+            textAlign: 'center' as const,
+            cursor: 'pointer',
+            marginBottom: '1px',
+            transition: 'all 0.1s',
+          }}
         >
-          <input
-            id="csv-input"
-            type="file"
-            accept=".csv"
-            className="hidden"
+          <input id="csv-input" type="file" accept=".csv"
+            style={{ display: 'none' }}
             onChange={e => {
               const f = e.target.files?.[0];
               if (f) handleFile(f);
-            }}
-          />
+            }} />
 
           {file ? (
             <div>
-              <p className="text-green-400 font-semibold">{file.name}</p>
-              <p className="text-gray-500 text-sm mt-1">
-                {(file.size / 1024).toFixed(1)} KB · Click to change
-              </p>
+              <div style={{
+                color: '#00ff88', fontSize: '12px',
+                letterSpacing: '2px', marginBottom: '4px',
+              }}>
+                {file.name.toUpperCase()}
+              </div>
+              <div style={{
+                color: '#333', fontSize: '9px', letterSpacing: '2px',
+              }}>
+                {(file.size / 1024).toFixed(1)} KB // CLICK TO CHANGE
+              </div>
             </div>
           ) : (
             <div>
-              <p className="text-gray-300 font-medium">
-                Drop your CSV here
-              </p>
-              <p className="text-gray-500 text-sm mt-1">
-                or click to browse
-              </p>
+              <div style={{
+                color: '#222', fontSize: '24px', marginBottom: '8px',
+              }}>
+                +
+              </div>
+              <div style={{
+                color: '#333', fontSize: '11px', letterSpacing: '3px',
+              }}>
+                DROP CSV HERE
+              </div>
+              <div style={{
+                color: '#1e1e1e', fontSize: '9px',
+                letterSpacing: '2px', marginTop: '4px',
+              }}>
+                OR CLICK TO BROWSE
+              </div>
             </div>
           )}
         </div>
 
         {error && (
-          <div className="bg-red-500/10 border border-red-500/30 text-red-400
-                          rounded-lg p-4 text-sm mb-4">
+          <div style={{
+            background: 'rgba(255,59,59,0.08)',
+            border: '1px solid rgba(255,59,59,0.3)',
+            color: '#ff3b3b', padding: '12px 16px',
+            fontSize: '11px', letterSpacing: '1px',
+            marginBottom: '1px',
+          }}>
             {error}
           </div>
         )}
 
-        <button
-          onClick={handleImport}
-          disabled={!file || loading}
-          className="w-full bg-blue-600 hover:bg-blue-500
-                     disabled:bg-blue-600/30 disabled:cursor-not-allowed
-                     text-white font-semibold rounded-xl py-4
-                     transition-colors mb-6"
-        >
-          {loading ? (
-            <span className="flex items-center justify-center gap-2">
-              <svg className="animate-spin h-4 w-4"
-                xmlns="http://www.w3.org/2000/svg" fill="none"
-                viewBox="0 0 24 24">
-                <circle className="opacity-25" cx="12" cy="12" r="10"
-                  stroke="currentColor" strokeWidth="4"/>
-                <path className="opacity-75" fill="currentColor"
-                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
-              </svg>
-              Importing...
-            </span>
-          ) : 'Import Trades'}
+        <button onClick={handleImport} disabled={!file || loading}
+          style={{
+            width: '100%',
+            background: !file || loading ? '#0d0d0d' : '#00ff88',
+            color: !file || loading ? '#222' : '#000',
+            border: `1px solid ${!file || loading ? '#1a1a1a' : '#00ff88'}`,
+            padding: '14px',
+            fontSize: '11px', fontWeight: 700,
+            letterSpacing: '3px',
+            cursor: !file || loading ? 'not-allowed' : 'pointer',
+            fontFamily: 'Roboto Mono, monospace',
+            marginBottom: '16px',
+          }}>
+          {loading ? 'IMPORTING...' : 'IMPORT TRADES //'}
         </button>
 
         {/* Result */}
         {result && (
-          <div className="bg-gray-900 border border-gray-800 rounded-xl p-6">
-            <h2 className="text-lg font-semibold mb-4">Import Complete</h2>
-
-            <div className="grid grid-cols-3 gap-3 mb-5">
-              <div className="bg-green-500/10 border border-green-500/20
-                              rounded-xl p-4 text-center">
-                <p className="text-3xl font-bold text-green-400">
-                  {result.imported}
-                </p>
-                <p className="text-gray-400 text-xs mt-1">Imported</p>
-              </div>
-              <div className="bg-yellow-500/10 border border-yellow-500/20
-                              rounded-xl p-4 text-center">
-                <p className="text-3xl font-bold text-yellow-400">
-                  {result.skipped}
-                </p>
-                <p className="text-gray-400 text-xs mt-1">Skipped</p>
-              </div>
-              <div className="bg-red-500/10 border border-red-500/20
-                              rounded-xl p-4 text-center">
-                <p className="text-3xl font-bold text-red-400">
-                  {result.failed}
-                </p>
-                <p className="text-gray-400 text-xs mt-1">Failed</p>
-              </div>
+          <div style={{
+            background: '#0a0a0a', border: '1px solid #1e1e1e',
+          }}>
+            <div style={{
+              padding: '10px 16px', borderBottom: '1px solid #1e1e1e',
+              color: '#333', fontSize: '9px', letterSpacing: '3px',
+            }}>
+              IMPORT COMPLETE
             </div>
+            <div style={{ padding: '20px 16px' }}>
 
-            {/* Skipped details */}
-            {result.skipped_details && result.skipped_details.length > 0 && (
-              <div className="mb-4">
-                <p className="text-yellow-400 text-xs font-semibold uppercase
-                               tracking-wider mb-2">
-                  Skipped rows
-                </p>
-                <div className="space-y-1">
+              <div style={{
+                display: 'grid', gridTemplateColumns: '1fr 1fr 1fr',
+                gap: '1px', background: '#1e1e1e', marginBottom: '16px',
+              }}>
+                {[
+                  { label: 'IMPORTED', value: result.imported,
+                    color: '#00ff88' },
+                  { label: 'SKIPPED',  value: result.skipped,
+                    color: '#ffcc00' },
+                  { label: 'FAILED',   value: result.failed,
+                    color: '#ff3b3b' },
+                ].map(s => (
+                  <div key={s.label} style={{
+                    background: '#0a0a0a', padding: '16px',
+                    textAlign: 'center' as const,
+                  }}>
+                    <div style={{
+                      color: s.color, fontSize: '28px', fontWeight: 700,
+                    }}>
+                      {s.value}
+                    </div>
+                    <div style={{
+                      color: '#333', fontSize: '9px',
+                      letterSpacing: '2px', marginTop: '4px',
+                    }}>
+                      {s.label}
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {result.skipped_details && result.skipped_details.length > 0 && (
+                <div style={{ marginBottom: '16px' }}>
+                  <div style={{
+                    color: '#ffcc00', fontSize: '9px',
+                    letterSpacing: '2px', marginBottom: '8px',
+                  }}>
+                    SKIPPED ROWS
+                  </div>
                   {result.skipped_details.map((s, i) => (
-                    <p key={i} className="text-gray-400 text-xs">
-                      Row {s.row}: {s.reason}
-                    </p>
+                    <div key={i} style={{
+                      color: '#444', fontSize: '10px',
+                      marginBottom: '4px', letterSpacing: '0.5px',
+                    }}>
+                      ROW {s.row}: {s.reason.toUpperCase()}
+                    </div>
                   ))}
                 </div>
-              </div>
-            )}
+              )}
 
-            {result.imported > 0 ? (
-              <button
-                onClick={() => router.push('/')}
-                className="w-full bg-blue-600 hover:bg-blue-500 text-white
-                           font-semibold rounded-xl py-3 transition-colors"
-              >
-                View Dashboard →
-              </button>
-            ) : (
-              <p className="text-center text-gray-500 text-sm">
-                No trades were imported. Check the skipped details above.
-              </p>
-            )}
+              {result.imported > 0 ? (
+                <button onClick={() => router.push('/')} style={{
+                  width: '100%',
+                  background: '#00ff88', color: '#000',
+                  border: 'none', padding: '12px',
+                  fontSize: '11px', fontWeight: 700,
+                  letterSpacing: '3px', cursor: 'pointer',
+                  fontFamily: 'Roboto Mono, monospace',
+                }}>
+                  VIEW DASHBOARD →
+                </button>
+              ) : (
+                <div style={{
+                  textAlign: 'center' as const, color: '#222',
+                  fontSize: '10px', letterSpacing: '2px',
+                }}>
+                  NO TRADES IMPORTED // CHECK FORMAT
+                </div>
+              )}
+            </div>
           </div>
         )}
 

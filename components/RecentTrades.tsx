@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import api from "@/lib/api";
 import { Trade } from "@/types/trade";
 import JournalTable from "./JournalTable";
+import Link from "next/link";
 
 export default function RecentTrades() {
   const [trades, setTrades] = useState<Trade[]>([]);
@@ -17,28 +18,113 @@ export default function RecentTrades() {
       .finally(() => setLoading(false));
   }, []);
 
-  if (loading) return <div className="text-gray-400">Loading trades...</div>;
+  if (loading)
+    return (
+      <div
+        style={{
+          color: "#333",
+          fontSize: "11px",
+          letterSpacing: "2px",
+          padding: "24px 0",
+        }}
+      >
+        FETCHING TRADE HISTORY...
+      </div>
+    );
 
   return (
-    <div className="bg-gray-900 border border-gray-800 rounded-xl">
-      <div className="flex items-center justify-between p-5 border-b border-gray-800">
-        <h2 className="text-lg font-semibold text-white">Recent Trades</h2>
-        <span className="text-gray-400 text-sm">{trades.length} total</span>
+    <div style={{ marginTop: "1px" }}>
+      {/* Table header */}
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns:
+            "140px 100px 80px 100px 100px 100px 80px 120px 100px 1fr 80px",
+          padding: "10px 16px",
+          background: "#0d0d0d",
+          borderBottom: "1px solid #1e1e1e",
+          borderTop: "1px solid #1e1e1e",
+        }}
+      >
+        {[
+          "SYMBOL",
+          "MARKET",
+          "DIR",
+          "ENTRY",
+          "EXIT",
+          "P&L",
+          "R:R",
+          "STRATEGY",
+          "OUTCOME",
+          "DATE",
+          "",
+        ].map((h) => (
+          <div
+            key={h}
+            style={{
+              color: "#333",
+              fontSize: "9px",
+              letterSpacing: "2px",
+              fontWeight: 600,
+            }}
+          >
+            {h}
+          </div>
+        ))}
       </div>
 
+      {/* Empty state */}
       {trades.length === 0 ? (
-        <div className="p-10 text-center text-gray-500">
-          <p className="text-lg mb-1">No trades logged yet.</p>
-          <p className="text-sm">
-            Your journal is empty — go make some money first 😄
-          </p>
+        <div
+          style={{
+            padding: "60px 16px",
+            textAlign: "center",
+            color: "#333",
+            fontSize: "11px",
+            letterSpacing: "2px",
+            borderBottom: "1px solid #1e1e1e",
+          }}
+        >
+          NO TRADES LOGGED // START TRADING
         </div>
       ) : (
         <div className="overflow-x-auto">
-          <p className="text-gray-300 text-center text-sm p-3 ">Click the symbol to view trade details</p>
+          <p className="text-gray-300 text-center text-sm p-3 ">
+            Click the symbol to view trade details
+          </p>
           <JournalTable trades={trades} />
         </div>
       )}
+      <div
+        style={{
+          padding: "10px 16px",
+          borderTop: "1px solid #1e1e1e",
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+        }}
+      >
+        <span
+          style={{
+            color: "#333",
+            fontSize: "9px",
+            letterSpacing: "2px",
+          }}
+        >
+          {trades.length} RECORDS
+        </span>
+        <Link
+          href="/analytics"
+          style={{
+            color: "#444",
+            fontSize: "9px",
+            letterSpacing: "2px",
+            textDecoration: "none",
+          }}
+        >
+          VIEW ANALYTICS →
+        </Link>
+      </div>
     </div>
   );
 }

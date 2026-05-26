@@ -1,14 +1,12 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
 import "./globals.css";
 import Navbar from "@/components/Navbar";
 import GoogleProvider from "@/components/GoogleProvider";
 
-const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "TradeJournal",
-  description: "Track. Analyze. Improve.",
+  title: 'TRADEJOURNAL // TERMINAL',
+  description: 'Track. Analyze. Improve.',
 };
 
 export default function RootLayout({
@@ -18,7 +16,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${inter.className} bg-gray-950 antialiased`}>
+      <body>
         <GoogleProvider>
           <Navbar />
           {children}

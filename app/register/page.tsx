@@ -11,10 +11,7 @@ export default function RegisterPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [form, setForm] = useState({
-    username: '',
-    email: '',
-    password: '',
-    password2: '',
+    username: '', email: '', password: '', password2: '',
   });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -23,14 +20,12 @@ export default function RegisterPage() {
 
   const handleRegister = async (e: React.SyntheticEvent) => {
     e.preventDefault();
-    setError('');
-
     if (form.password !== form.password2) {
-      setError('Passwords do not match.');
+      setError('ERR  PASSWORDS DO NOT MATCH');
       return;
     }
-
     setLoading(true);
+    setError('');
     try {
       const res = await api.post('/auth/register/', form);
       localStorage.setItem('access_token', res.data.access);
@@ -38,120 +33,171 @@ export default function RegisterPage() {
       router.push('/');
     } catch (err: any) {
       const data = err.response?.data;
-      // Django returns errors as objects — flatten them
       if (typeof data === 'object') {
-        const messages = Object.values(data).flat().join(' ');
-        setError(messages);
+        setError(`ERR  ${Object.values(data).flat().join(' ')}`);
       } else {
-        setError('Something went wrong. Please try again.');
+        setError('ERR  REGISTRATION FAILED');
       }
     } finally {
       setLoading(false);
     }
   };
 
-  const inputClass = `w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3
-    text-white placeholder-gray-500 focus:outline-none focus:border-blue-500
-    transition-colors`;
+  const inputStyle = {
+    width: '100%',
+    background: '#0d0d0d',
+    border: '1px solid #1e1e1e',
+    color: '#e8e8e8',
+    padding: '12px 14px',
+    fontSize: '12px',
+    fontFamily: 'Roboto Mono, monospace',
+    letterSpacing: '1px',
+    outline: 'none',
+    boxSizing: 'border-box' as const,
+  };
+
+  const labelStyle = {
+    color: '#333',
+    fontSize: '9px',
+    letterSpacing: '2px',
+    marginBottom: '6px',
+    display: 'block' as const,
+  };
 
   return (
-    <main className="min-h-screen bg-gray-950 flex items-center justify-center p-6">
-      <div className="bg-gray-900 border border-gray-800 rounded-2xl p-8 w-full
-                      max-w-md">
+    <main style={{
+      minHeight: '100vh',
+      background: '#0a0a0a',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      padding: '24px',
+    }}>
+      <div style={{
+        position: 'fixed', inset: 0, pointerEvents: 'none', zIndex: 0,
+        background: 'repeating-linear-gradient(0deg, transparent, '
+          + 'transparent 2px, rgba(0,0,0,0.03) 2px, rgba(0,0,0,0.03) 4px)',
+      }} />
 
-        {/* Logo */}
-        <div className="flex items-center gap-2 mb-6">
-          <div className="w-7 h-7 bg-blue-800 rounded-lg flex items-center
-                          justify-center text-white font-bold text-sm">
-            TJ
-          </div>
-          <span className="font-bold text-white text-lg">TradeJournal</span>
+      <div style={{
+        width: '100%', maxWidth: '400px',
+        border: '1px solid #1e1e1e',
+        background: '#0a0a0a',
+        position: 'relative', zIndex: 1,
+      }}>
+        {/* Title bar */}
+        <div style={{
+          background: '#111', borderBottom: '1px solid #1e1e1e',
+          padding: '10px 16px',
+          display: 'flex', justifyContent: 'space-between',
+        }}>
+          <span style={{
+            color: '#00ff88', fontSize: '10px',
+            letterSpacing: '3px', fontWeight: 700,
+          }}>
+            TJ TERMINAL
+          </span>
+          <span style={{ color: '#222', fontSize: '10px' }}>
+            NEW ACCOUNT
+          </span>
         </div>
 
-        <h1 className="text-2xl font-bold text-white mb-1">Create your account</h1>
-        <p className="text-gray-400 text-sm mb-8">
-          Start tracking your trades today
-        </p>
-
-        {error && (
-          <div className="bg-red-500/10 border border-red-500/30 text-red-400
-                          rounded-lg p-3 mb-6 text-sm">
-            {error}
-          </div>
-        )}
-
-        <form onSubmit={handleRegister} className="space-y-4">
-
-
-
-
-          <div>
-            <label className="text-gray-400 text-xs uppercase tracking-wider
-                               mb-1 block">
-              Username
-            </label>
-            <input name="username" type="text" value={form.username}
-              onChange={handleChange} placeholder="traderkng"
-              className={inputClass} required />
-          </div>
-
-          <div>
-            <label className="text-gray-400 text-xs uppercase tracking-wider
-                               mb-1 block">
-              Email
-            </label>
-            <input name="email" type="email" value={form.email}
-              onChange={handleChange} placeholder="you@example.com"
-              className={inputClass} required />
-          </div>
-
-          <div>
-            <label className="text-gray-400 text-xs uppercase tracking-wider
-                               mb-1 block">
-              Password
-            </label>
-            <input name="password" type="password" value={form.password}
-              onChange={handleChange} placeholder="••••••••"
-              className={inputClass} required />
-            <p className="text-gray-500 text-xs mt-1">Minimum 8 characters</p>
-          </div>
-
-          <div>
-            <label className="text-gray-400 text-xs uppercase tracking-wider
-                               mb-1 block">
-              Confirm Password
-            </label>
-            <input name="password2" type="password" value={form.password2}
-              onChange={handleChange} placeholder="••••••••"
-              className={inputClass} required />
-          </div>
-
-          <button type="submit" disabled={loading}
-            className="w-full bg-blue-800 hover:bg-blue-500 disabled:bg-blue-800/50
-                       text-white font-semibold rounded-lg py-3 transition-colors mt-2">
-            {loading ? 'Creating account...' : 'Create Account'}
-          </button>
-           <div className="relative my-2">
-            <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-gray-700"></div>
+        <div style={{ padding: '32px' }}>
+          <div style={{ marginBottom: '28px' }}>
+            <div style={{
+              color: '#333', fontSize: '9px',
+              letterSpacing: '3px', marginBottom: '6px',
+            }}>
+              CREATE ACCOUNT
             </div>
-            <div className="relative flex justify-center text-xs">
-              <span className="px-3 bg-gray-900 text-gray-500">
-                or
-              </span>
+            <div style={{
+              color: '#e8e8e8', fontSize: '18px',
+              fontWeight: 700, letterSpacing: '3px',
+            }}>
+              REGISTER
             </div>
+          </div>
+
+          {error && (
+            <div style={{
+              background: 'rgba(255,59,59,0.08)',
+              border: '1px solid rgba(255,59,59,0.3)',
+              color: '#ff3b3b', padding: '10px 14px',
+              fontSize: '11px', letterSpacing: '1px',
+              marginBottom: '20px',
+            }}>
+              {error}
+            </div>
+          )}
+
+          <form onSubmit={handleRegister}>
+            <div style={{ marginBottom: '12px' }}>
+              <label htmlFor="username" style={labelStyle}>USERNAME</label>
+              <input name="username" type="text" value={form.username}
+                onChange={handleChange} style={inputStyle}
+                placeholder="traderkng" required />
+            </div>
+            <div style={{ marginBottom: '12px' }}>
+              <label htmlFor="email" style={labelStyle}>EMAIL</label>
+              <input name="email" type="email" value={form.email}
+                onChange={handleChange} style={inputStyle}
+                placeholder="you@example.com" required />
+            </div>
+            <div style={{ marginBottom: '12px' }}>
+              <label htmlFor="password" style={labelStyle}>PASSWORD</label>
+              <input name="password" type="password" value={form.password}
+                onChange={handleChange} style={inputStyle}
+                placeholder="min. 8 characters" required />
+            </div>
+            <div style={{ marginBottom: '20px' }}>
+              <label htmlFor="password2" style={labelStyle}>CONFIRM PASSWORD</label>
+              <input name="password2" type="password" value={form.password2}
+                onChange={handleChange} style={inputStyle}
+                placeholder="••••••••" required />
+            </div>
+
+            <button type="submit" disabled={loading} style={{
+              width: '100%',
+              background: loading ? '#111' : '#00ff88',
+              color: loading ? '#333' : '#000',
+              border: 'none', padding: '13px',
+              fontSize: '11px', fontWeight: 700,
+              letterSpacing: '3px', cursor: loading ? 'not-allowed' : 'pointer',
+              fontFamily: 'Roboto Mono, monospace',
+              marginBottom: '20px', transition: 'all 0.1s',
+            }}>
+              {loading ? 'CREATING ACCOUNT...' : 'REGISTER '}
+            </button>
+          </form>
+
+          <div style={{
+            display: 'flex', alignItems: 'center',
+            gap: '12px', marginBottom: '20px',
+          }}>
+            <div style={{ flex: 1, height: '1px', background: '#1e1e1e' }} />
+            <span style={{ color: '#333', fontSize: '9px', letterSpacing: '2px' }}>
+              OR
+            </span>
+            <div style={{ flex: 1, height: '1px', background: '#1e1e1e' }} />
           </div>
 
           <GoogleLoginButton />
-        </form>
 
-        <p className="text-center text-gray-500 text-sm mt-6">
-          Already have an account?{' '}
-          <Link href="/login" className="text-blue-400 hover:text-blue-300
-                                         transition-colors">
-            Sign in
-          </Link>
-        </p>
+          <div style={{
+            marginTop: '24px', paddingTop: '20px',
+            borderTop: '1px solid #1a1a1a', textAlign: 'center',
+          }}>
+            <span style={{ color: '#333', fontSize: '10px' }}>
+              HAVE AN ACCOUNT?{' '}
+            </span>
+            <Link href="/login" style={{
+              color: '#00ff88', fontSize: '10px',
+              letterSpacing: '1px', textDecoration: 'none',
+            }}>
+              LOGIN 
+            </Link>
+          </div>
+        </div>
       </div>
     </main>
   );

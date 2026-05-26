@@ -2,109 +2,233 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import api from '@/lib/api';
 import Link from 'next/link';
+import api from '@/lib/api';
 import GoogleLoginButton from '@/components/GoogleLoginButton';
+
 export default function LoginPage() {
   const router = useRouter();
-  const [credentials, setCredentials] = useState({ username: '', password: '' });
+  const [credentials, setCredentials] = useState({
+    username: '', password: ''
+  });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
-const handleLogin = async (e: React.SyntheticEvent) => {
-  e.preventDefault();
-  setLoading(true);
-  setError('');
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setError('');
+    try {
+      const res = await api.post('/auth/login/', credentials);
+      localStorage.setItem('access_token', res.data.access);
+      localStorage.setItem('refresh_token', res.data.refresh);
+      router.push('/');
+    } catch {
+      setError('ERR // INVALID CREDENTIALS');
+    } finally {
+      setLoading(false);
+    }
+  };
 
-  try {
-    const res = await api.post('/auth/login/', credentials);
-
-    // Store both tokens
-    localStorage.setItem('access_token', res.data.access);
-    localStorage.setItem('refresh_token', res.data.refresh);
-
-    router.push('/');
-  } catch (err: any) {
-    setError('Invalid username or password.');
-  } finally {
-    setLoading(false);
-  }
-};
+  const inputStyle = {
+    width: '100%',
+    background: '#0d0d0d',
+    border: '1px solid #1e1e1e',
+    color: '#e8e8e8',
+    padding: '12px 14px',
+    fontSize: '12px',
+    fontFamily: 'Roboto Mono, monospace',
+    letterSpacing: '1px',
+    outline: 'none',
+    boxSizing: 'border-box' as const,
+  };
 
   return (
-    <main className="min-h-screen bg-gray-950 flex items-center justify-center p-6">
-      <div className="bg-gray-900 border border-gray-800 rounded-2xl p-8 w-full max-w-md">
-        <h1 className="text-2xl font-bold text-white mb-2">Trade Journal</h1>
-        <p className="text-gray-400 mb-8 text-sm">Sign in to your account</p>
+    <main style={{
+      minHeight: '100vh',
+      background: '#0a0a0a',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      padding: '24px',
+    }}>
 
-        {error && (
-          <div className="bg-red-500/10 border border-red-500/30 text-red-400
-                          rounded-lg p-3 mb-6 text-sm">
-            {error}
-          </div>
-        )}
+      {/* Scanline effect */}
+      <div style={{
+        position: 'fixed',
+        inset: 0,
+        background: 'repeating-linear-gradient(0deg, transparent, '
+          + 'transparent 2px, rgba(0,0,0,0.03) 2px, rgba(0,0,0,0.03) 4px)',
+        pointerEvents: 'none',
+        zIndex: 0,
+      }} />
 
-        <form onSubmit={handleLogin} className="space-y-4">
-          <div>
-            <label htmlFor='username' className="text-gray-400 text-sm mb-1 block">Username</label>
-            <input
-              type="text"
-              id='username'
-              name='username'
-              value={credentials.username}
-              onChange={e => setCredentials(p => ({ ...p, username: e.target.value }))}
-              className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3
-                         text-white placeholder-gray-500 focus:outline-none
-                         focus:border-blue-500 transition-colors"
-              placeholder="your username"
-              required
-            />
-          </div>
+      <div style={{
+        width: '100%',
+        maxWidth: '400px',
+        border: '1px solid #1e1e1e',
+        background: '#0a0a0a',
+        position: 'relative',
+        zIndex: 1,
+      }}>
 
-          <div>
-            <label htmlFor='password' className="text-gray-400 text-sm mb-1 block">Password</label>
-            <input
-              type="password"
-              name='password'
-              value={credentials.password}
-              onChange={e => setCredentials(p => ({ ...p, password: e.target.value }))}
-              className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3
-                         text-white placeholder-gray-500 focus:outline-none
-                         focus:border-blue-500 transition-colors"
-              placeholder="••••••••"
-              required
-            />
-          </div>
+        {/* Terminal title bar */}
+        <div style={{
+          background: '#111',
+          borderBottom: '1px solid #1e1e1e',
+          padding: '10px 16px',
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+        }}>
+          <span style={{
+            color: '#00ff88',
+            fontSize: '10px',
+            letterSpacing: '3px',
+            fontWeight: 700,
+          }}>
+            TJ// TERMINAL
+          </span>
+          <span style={{ color: '#222', fontSize: '10px' }}>
+            AUTH MODULE v1.0
+          </span>
+        </div>
 
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full bg-blue-600 hover:bg-blue-500 disabled:bg-blue-600/50
-                       text-white font-semibold rounded-lg py-3 transition-colors mt-2"
-          >
-            {loading ? 'Signing in...' : 'Sign In'}
-          </button>
-           <div className="relative my-2">
-            <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-gray-700"></div>
+        <div style={{ padding: '32px' }}>
+          <div style={{
+            marginBottom: '28px',
+          }}>
+            <div style={{
+              color: '#333',
+              fontSize: '9px',
+              letterSpacing: '3px',
+              marginBottom: '6px',
+            }}>
+              SYSTEM LOGIN
             </div>
-            <div className="relative flex justify-center text-xs">
-              <span className="px-3 bg-gray-900 text-gray-500">
-                or
-              </span>
+            <div style={{
+              color: '#e8e8e8',
+              fontSize: '18px',
+              fontWeight: 700,
+              letterSpacing: '3px',
+            }}>
+              AUTHENTICATE
             </div>
+          </div>
+
+          {error && (
+            <div style={{
+              background: 'rgba(255,59,59,0.08)',
+              border: '1px solid rgba(255,59,59,0.3)',
+              color: '#ff3b3b',
+              padding: '10px 14px',
+              fontSize: '11px',
+              letterSpacing: '1px',
+              marginBottom: '20px',
+            }}>
+              {error}
+            </div>
+          )}
+
+          <form onSubmit={handleLogin}>
+            <div style={{ marginBottom: '12px' }}>
+              <div style={{
+                color: '#333',
+                fontSize: '9px',
+                letterSpacing: '2px',
+                marginBottom: '6px',
+              }}>
+                USERNAME
+              </div>
+              <input
+                type="text"
+                value={credentials.username}
+                onChange={e => setCredentials(p =>
+                  ({ ...p, username: e.target.value }))}
+                style={inputStyle}
+                placeholder="enter username"
+                required
+              />
+            </div>
+
+            <div style={{ marginBottom: '20px' }}>
+              <div style={{
+                color: '#333',
+                fontSize: '9px',
+                letterSpacing: '2px',
+                marginBottom: '6px',
+              }}>
+                PASSWORD
+              </div>
+              <input
+                type="password"
+                value={credentials.password}
+                onChange={e => setCredentials(p =>
+                  ({ ...p, password: e.target.value }))}
+                style={inputStyle}
+                placeholder="••••••••"
+                required
+              />
+            </div>
+
+            <button type="submit" disabled={loading} style={{
+              width: '100%',
+              background: loading ? '#111' : '#00ff88',
+              color: loading ? '#333' : '#000',
+              border: 'none',
+              padding: '13px',
+              fontSize: '11px',
+              fontWeight: 700,
+              letterSpacing: '3px',
+              cursor: loading ? 'not-allowed' : 'pointer',
+              fontFamily: 'Roboto Mono, monospace',
+              marginBottom: '20px',
+              transition: 'all 0.1s',
+            }}>
+              {loading ? 'AUTHENTICATING...' : 'LOGIN'}
+            </button>
+
+          </form>
+
+          {/* Divider */}
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '12px',
+            marginBottom: '20px',
+          }}>
+            <div style={{ flex: 1, height: '1px', background: '#1e1e1e' }} />
+            <span style={{
+              color: '#333',
+              fontSize: '9px',
+              letterSpacing: '2px',
+            }}>
+              OR
+            </span>
+            <div style={{ flex: 1, height: '1px', background: '#1e1e1e' }} />
           </div>
 
           <GoogleLoginButton />
 
-        </form>
-         <p className="text-center text-gray-500 text-sm mt-6">
-          Don't have an account?{' '}
-          <Link href="/register" className="text-blue-400 hover:text-blue-300
-                                         transition-colors">
-            Sign up
-          </Link>
-        </p>
+          <div style={{
+            marginTop: '24px',
+            paddingTop: '20px',
+            borderTop: '1px solid #1a1a1a',
+            textAlign: 'center',
+          }}>
+            <span style={{ color: '#333', fontSize: '10px' }}>
+              NO ACCOUNT?{'  '}
+            </span>
+            <Link href="/register" style={{
+              color: '#00ff88',
+              fontSize: '10px',
+              letterSpacing: '1px',
+              textDecoration: 'none',
+            }}>
+              REGISTER 
+            </Link>
+          </div>
+        </div>
       </div>
     </main>
   );

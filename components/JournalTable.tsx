@@ -5,119 +5,145 @@ import { Trade } from "@/types/trade";
 
 const JournalTable = ({ trades }: { trades: Trade[] }) => {
   return (
-    <table className="w-full text-sm">
-            <thead>
-              <tr
-                className="text-gray-400 text-xs uppercase tracking-wider
-                             border-b border-gray-800"
-              >
-                <th className="text-left p-4">Symbol</th>
-                <th className="text-left p-4">Market</th>
-                <th className="text-left p-4">Direction</th>
-                <th className="text-left p-4">Entry</th>
-                <th className="text-left p-4">Exit</th>
-                <th className="text-left p-4">P&L</th>
-                <th className="text-left p-4">R:R</th>
-                <th className="text-left p-4">Strategy</th>
-                <th className="text-left p-4">Outcome</th>
-                <th className="text-left p-4">Date</th>
-              </tr>
-            </thead>
-            <tbody>
-              {trades.map((trade) => {
-                let outcomeBadgeClass = "bg-gray-500/10 text-gray-400";
-                if (trade.outcome === "win") {
-                  outcomeBadgeClass = "bg-green-500/10 text-green-400";
-                } else if (trade.outcome === "loss") {
-                  outcomeBadgeClass = "bg-red-500/10 text-red-400";
-                }
+    <>
+      {trades.map((trade, i) => {
+        const pnl = trade.pnl ? parseFloat(trade.pnl) : null;
+        const isWin = trade.outcome === 'win';
+        const isLoss = trade.outcome === 'loss';
 
-                return (
-                  <tr
-                    key={trade.id}
-                    className="border-b border-gray-800/50 hover:bg-gray-800/40
-                               transition-colors"
-                  >
-                    <td className="p-4">
-                      <Link
-                        href={`/trades/${trade.id}`}
-                        className="font-semibold text-white hover:text-blue-400 transition-colors"
-                      >
-                        {trade.symbol}
-                      </Link>
-                    </td>
+        return (
+          <div key={trade.id} className="terminal-table" style={{
+            display: 'grid',
+            gridTemplateColumns:
+              '140px 100px 80px 100px 100px 100px 80px 120px 100px 1fr 80px',
+            padding: '12px 16px',
+            borderBottom: '1px solid #141414',
+            background: i % 2 === 0 ? '#0a0a0a' : '#0c0c0c',
+            alignItems: 'center',
+          }}>
 
-                    <td className="p-4 text-gray-300">
-                      {trade.market_display}
-                    </td>
-                    <td className="p-4">
-                      <span
-                        className={`px-2 py-1 rounded-md text-xs font-semibold
-                        ${
-                          trade.direction === "long"
-                            ? "bg-green-500/10 text-green-400"
-                            : "bg-red-500/10 text-red-400"
-                        }`}
-                      >
-                        {trade.direction_display}
-                      </span>
-                    </td>
-                    <td className="p-4 text-gray-300">{trade.entry_price}</td>
-                    <td className="p-4 text-gray-300">
-                      {trade.exit_price ?? "—"}
-                    </td>
-                    <td className="p-4">
-                      {trade.pnl ? (
-                        <span
-                          className={
-                            Number.parseFloat(trade.pnl) >= 0
-                              ? "text-green-400"
-                              : "text-red-400"
-                          }
-                        >
-                          ${Number.parseFloat(trade.pnl).toFixed(2)}
-                        </span>
-                      ) : (
-                        "—"
-                      )}
-                    </td>
-                    <td className="p-4 text-blue-400">
-                      {trade.risk_reward_ratio
-                        ? `${trade.risk_reward_ratio}R`
-                        : "—"}
-                    </td>
-                    <td className="p-4 text-gray-300">
-                      {trade.strategy || "—"}
-                    </td>
-                    <td className="p-4">
-                      {trade.outcome ? (
-                        <span
-                          className={`px-2 py-1 rounded-md text-xs font-semibold ${outcomeBadgeClass}`}
-                        >
-                          {trade.outcome}
-                        </span>
-                      ) : (
-                        "—"
-                      )}
-                    </td>
-                    <td className="p-4 text-gray-400">
-                      {format(new Date(trade.entry_time), "MMM d, yyyy")}
-                    </td>
-                    <td className="p-4">
-                      <Link
-                        href={`/trades/${trade.id}/edit`}
-                        className="text-gray-400 hover:text-white text-xs border border-gray-700
-               hover:border-gray-500 px-3 py-1.5 rounded-lg transition-colors"
-                      >
-                        Edit
-                      </Link>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-  )
+            <div>
+              <Link href={`/trades/${trade.id}`} style={{
+                color: '#00aaff',
+                textDecoration: 'none',
+                fontSize: '12px',
+                fontWeight: 600,
+                letterSpacing: '1px',
+              }}>
+                {trade.symbol}
+              </Link>
+            </div>
+
+            <div style={{
+              color: '#555',
+              fontSize: '10px',
+              letterSpacing: '1px',
+            }}>
+              {trade.market.toUpperCase()}
+            </div>
+
+            <div style={{
+              color: trade.direction === 'long' ? '#00ff88' : '#ff3b3b',
+              fontSize: '10px',
+              fontWeight: 700,
+              letterSpacing: '1px',
+            }}>
+              {trade.direction === 'long' ? '▲ LONG' : '▼ SHORT'}
+            </div>
+
+            <div style={{
+              color: '#888',
+              fontSize: '11px',
+              fontFamily: 'Roboto Mono, monospace',
+            }}>
+              {trade.entry_price}
+            </div>
+
+            <div style={{
+              color: '#666',
+              fontSize: '11px',
+              fontFamily: 'Roboto Mono, monospace',
+            }}>
+              {trade.exit_price ?? '—'}
+            </div>
+
+            <div style={{
+              color: pnl === null ? '#444' : pnl >= 0 ? '#00ff88' : '#ff3b3b',
+              fontSize: '12px',
+              fontWeight: 600,
+            }}>
+              {pnl !== null
+                ? `${pnl >= 0 ? '+' : ''}$${pnl.toFixed(2)}`
+                : '—'}
+            </div>
+
+            <div style={{
+              color: '#00aaff',
+              fontSize: '11px',
+            }}>
+              {trade.risk_reward_ratio
+                ? `${trade.risk_reward_ratio}R`
+                : '—'}
+            </div>
+
+            <div style={{
+              color: '#555',
+              fontSize: '10px',
+              letterSpacing: '0.5px',
+            }}>
+              {trade.strategy || '—'}
+            </div>
+
+            <div>
+              {trade.outcome ? (
+                <span style={{
+                  background: isWin
+                    ? 'rgba(0,255,136,0.08)'
+                    : isLoss
+                    ? 'rgba(255,59,59,0.08)'
+                    : 'rgba(255,255,255,0.05)',
+                  color: isWin ? '#00ff88' : isLoss ? '#ff3b3b' : '#555',
+                  border: `1px solid ${isWin
+                    ? 'rgba(0,255,136,0.2)'
+                    : isLoss
+                    ? 'rgba(255,59,59,0.2)'
+                    : '#1e1e1e'}`,
+                  fontSize: '9px',
+                  letterSpacing: '1.5px',
+                  padding: '3px 8px',
+                  fontWeight: 700,
+                }}>
+                  {trade.outcome.toUpperCase()}
+                </span>
+              ) : '—'}
+            </div>
+
+            <div style={{
+              color: '#444',
+              fontSize: '10px',
+            }}>
+              {format(new Date(trade.entry_time), 'dd MMM yy HH:mm')}
+            </div>
+
+            <div>
+              <Link href={`/trades/${trade.id}/edit`} style={{
+                color: '#333',
+                fontSize: '10px',
+                letterSpacing: '1px',
+                textDecoration: 'none',
+                border: '1px solid #1e1e1e',
+                padding: '3px 8px',
+                display: 'inline-block',
+                transition: 'all 0.1s',
+              }}>
+                EDIT
+              </Link>
+            </div>
+          </div>
+        );
+      })}
+    </>
+  );
 }
 
 export default JournalTable
