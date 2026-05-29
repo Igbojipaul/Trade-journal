@@ -1,7 +1,7 @@
 export const pageStyle = {
   minHeight: '100vh',
   background: '#0a0a0a',
-  padding: '24px',
+  padding: '16px',
 };
 
 export const inputStyle = {

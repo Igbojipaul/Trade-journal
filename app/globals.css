@@ -53,3 +53,85 @@ input:focus, textarea:focus, select:focus {
 .terminal-table tr:hover td {
   background: #111 !important;
 }
+
+/* ============ RESPONSIVE ============ */
+
+/* Stats grid */
+@media (max-width: 768px) {
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+
+  .trades-table-header {
+    display: none !important;
+  }
+
+  .trades-table-row {
+    grid-template-columns: 1fr 1fr !important;
+    gap: 8px !important;
+    padding: 12px !important;
+  }
+
+  .detail-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .stat-cards-4 {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+
+  .form-grid-2 {
+    grid-template-columns: 1fr !important;
+  }
+
+  .form-grid-4 {
+    grid-template-columns: 1fr 1fr !important;
+  }
+
+  .nav-links {
+    display: none !important;
+  }
+
+  .nav-mobile {
+    display: flex !important;
+  }
+
+  .page-header {
+    flex-direction: column !important;
+    gap: 12px !important;
+    align-items: flex-start !important;
+  }
+
+  .analytics-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .import-result-grid {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .stats-grid {
+    grid-template-columns: 1fr 1fr !important;
+  }
+
+  .stat-cards-4 {
+    grid-template-columns: 1fr 1fr !important;
+  }
+}
+
+/* Form grids */
+@media (max-width: 768px) {
+  .form-grid-2 {
+    grid-template-columns: 1fr !important;
+  }
+
+  .form-grid-4 {
+    grid-template-columns: 1fr 1fr !important;
+  }
+
+  .form-grid-stats {
+    grid-template-columns: 1fr 1fr !important;
+  }
+}
