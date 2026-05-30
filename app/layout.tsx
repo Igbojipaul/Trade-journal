@@ -5,7 +5,7 @@ import GoogleProvider from "@/components/GoogleProvider";
 
 
 export const metadata: Metadata = {
-  title: 'TRADEJOURNAL // TERMINAL',
+  title: 'Trade Journal',
   description: 'Track. Analyze. Improve.',
 };
 
@@ -16,7 +16,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body>
+      <body >
         <GoogleProvider>
           <Navbar />
           {children}

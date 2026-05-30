@@ -44,7 +44,9 @@ export default function RecentTrades() {
           background: "#0d0d0d",
           borderBottom: "1px solid #1e1e1e",
           borderTop: "1px solid #1e1e1e",
+          color:"green"
         }}
+        className="hidden "
       >
         {[
           "SYMBOL",
@@ -89,7 +91,7 @@ export default function RecentTrades() {
         </div>
       ) : (
         <div className="overflow-x-auto">
-          <p className="text-gray-300 text-center text-sm p-3 ">
+          <p className="text-green-800 text-center text-sm p-3 ">
             Click the symbol to view trade details
           </p>
           <JournalTable trades={trades} />

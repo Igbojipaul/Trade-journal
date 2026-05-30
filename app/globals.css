@@ -16,6 +16,7 @@
   --text-primary: #e8e8e8;
   --text-secondary: #666666;
   --text-dim: #333333;
+  --text-green: #00ff88;  
 }
 
 * {
@@ -25,7 +26,7 @@
 
 html, body {
   background-color: var(--bg-primary);
-  color: var(--text-primary);
+  color: var(--text-green);
   font-family: 'Roboto Mono', monospace;
   font-size: 13px;
 }
